@@ -17,6 +17,7 @@ export async function verifyWebhook(req, res) {
 
 export async function receiveMessage(req, res) {
   try {
+    console.log("🔥 WEBHOOK HIT");
     const entry = req.body.entry?.[0];
     const changes = entry?.changes?.[0];
     const message = changes?.value?.messages?.[0];
