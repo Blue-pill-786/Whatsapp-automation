@@ -1,12 +1,18 @@
 import { sendMessage } from "../services/whatsapp.service.js";
 import { getUserState, setUserState } from "../services/state.service.js";
 import { saveLead } from "../services/lead.service.js";
+import { notifyAdmin } from "../services/notify.service.js";
 
 export async function handleMenuFlow({ client, clientId, from, text }) {
   const state = getUserState(clientId, from);
 
+  // Normalize text (safety)
+  const messageText = text?.trim();
+
   // 1️⃣ First interaction → send welcome
   if (!state) {
+    console.log("👋 New user:", from);
+
     setUserState(clientId, from, { step: "MENU" });
 
     await sendMessage({
@@ -21,7 +27,7 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
 
   // 2️⃣ MENU handling
   if (state.step === "MENU") {
-    switch (text) {
+    switch (messageText) {
       case "1":
         await sendMessage({
           to: from,
@@ -56,11 +62,16 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
             "Please share a short description of what you’re looking for.",
         });
 
-        // Save initial lead intent
         await saveLead({
           clientName: client.name,
           phone: from,
           step: "Pricing",
+          message: "Requested pricing",
+        });
+
+        notifyAdmin({
+          clientName: client.name,
+          phone: from,
           message: "Requested pricing",
         });
 
@@ -77,11 +88,16 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
             "Please share your requirement briefly. Ubair will contact you shortly.",
         });
 
-        // Save initial lead intent
         await saveLead({
           clientName: client.name,
           phone: from,
           step: "Human",
+          message: "Requested human contact",
+        });
+
+        notifyAdmin({
+          clientName: client.name,
+          phone: from,
           message: "Requested human contact",
         });
 
@@ -105,12 +121,20 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
   }
 
   // 3️⃣ LEAD step → capture free text
-  if (state.step === "LEAD" && text) {
+  if (state.step === "LEAD" && messageText) {
+    console.log("📝 Lead message from", from, ":", messageText);
+
     await saveLead({
       clientName: client.name,
       phone: from,
       step: "Message",
-      message: text,
+      message: messageText,
+    });
+
+    notifyAdmin({
+      clientName: client.name,
+      phone: from,
+      message: messageText,
     });
 
     await sendMessage({
@@ -123,6 +147,19 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
     });
 
     setUserState(clientId, from, { step: "DONE" });
+    return;
+  }
+
+  // 4️⃣ DONE state → polite fallback
+  if (state.step === "DONE") {
+    await sendMessage({
+      to: from,
+      phoneNumberId: clientId,
+      token: client.token,
+      text:
+        "🙏 Thanks for reaching out.\n\n" +
+        "We’ve received your request and will respond shortly.",
+    });
     return;
   }
 }
