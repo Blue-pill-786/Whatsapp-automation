@@ -1,23 +1,25 @@
 import { sendMessage } from "../services/whatsapp.service.js";
 import { getUserState, setUserState } from "../services/state.service.js";
+import { saveLead } from "../services/lead.service.js";
 
 export async function handleMenuFlow({ client, clientId, from, text }) {
   const state = getUserState(clientId, from);
 
-  // First interaction
+  // 1️⃣ First interaction → send welcome
   if (!state) {
     setUserState(clientId, from, { step: "MENU" });
 
     await sendMessage({
       to: from,
-      text: client.welcomeMessage,
       phoneNumberId: clientId,
       token: client.token,
+      text: client.welcomeMessage,
     });
 
     return;
   }
 
+  // 2️⃣ MENU handling
   if (state.step === "MENU") {
     switch (text) {
       case "1":
@@ -30,7 +32,7 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
             "I build AI chatbots for websites & WhatsApp that answer queries, capture leads, and work 24/7.\n\n" +
             "Reply *3* for pricing or *4* to talk directly.",
         });
-        break;
+        return;
 
       case "2":
         await sendMessage({
@@ -42,7 +44,7 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
             "I design modern, fast websites that convert visitors into leads.\n\n" +
             "Reply *3* for pricing or *4* to talk directly.",
         });
-        break;
+        return;
 
       case "3":
         await sendMessage({
@@ -51,10 +53,19 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
           token: client.token,
           text:
             "💰 *Pricing & Consultation*\n\n" +
-            "Please share a short description of what you’re looking for. I’ll get back to you personally.",
+            "Please share a short description of what you’re looking for.",
         });
-        setUserState(clientId, from, { step: "HUMAN" });
-        break;
+
+        // Save initial lead intent
+        await saveLead({
+          clientName: client.name,
+          phone: from,
+          step: "Pricing",
+          message: "Requested pricing",
+        });
+
+        setUserState(clientId, from, { step: "LEAD" });
+        return;
 
       case "4":
         await sendMessage({
@@ -63,11 +74,19 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
           token: client.token,
           text:
             "👤 *Human Support*\n\n" +
-            "Thanks for reaching out. Ubair will contact you shortly.\n\n" +
-            "Please share your requirement briefly.",
+            "Please share your requirement briefly. Ubair will contact you shortly.",
         });
-        setUserState(clientId, from, { step: "HUMAN" });
-        break;
+
+        // Save initial lead intent
+        await saveLead({
+          clientName: client.name,
+          phone: from,
+          step: "Human",
+          message: "Requested human contact",
+        });
+
+        setUserState(clientId, from, { step: "LEAD" });
+        return;
 
       default:
         await sendMessage({
@@ -81,6 +100,29 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
             "3️⃣ Pricing\n" +
             "4️⃣ Talk to Ubair",
         });
+        return;
     }
+  }
+
+  // 3️⃣ LEAD step → capture free text
+  if (state.step === "LEAD" && text) {
+    await saveLead({
+      clientName: client.name,
+      phone: from,
+      step: "Message",
+      message: text,
+    });
+
+    await sendMessage({
+      to: from,
+      phoneNumberId: clientId,
+      token: client.token,
+      text:
+        "✅ Thanks! Your message has been received.\n\n" +
+        "We’ll get back to you shortly.",
+    });
+
+    setUserState(clientId, from, { step: "DONE" });
+    return;
   }
 }
