@@ -18,6 +18,12 @@ const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 // ======================
 // WEBHOOK VERIFICATION
 // ======================
+
+app.get("/", (req, res) => {
+  res.status(200).send("WhatsApp Automation Server is running 🚀");
+});
+
+
 app.get("/webhook", (req, res) => {
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
