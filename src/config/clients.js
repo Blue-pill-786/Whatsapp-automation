@@ -1,6 +1,6 @@
 export const clients = {
   // phone_number_id from Meta
-  "949698471566431": {
+  "988302764362380": {
     name: "Ubair",
     token: process.env.WHATSAPP_TOKEN,
 
