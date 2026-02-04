@@ -1,8 +1,8 @@
 {
   "name": "whatsapp-automation",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A multi-tenant WhatsApp automation backend for integrating AI chatbots, website services, and lead capture using the WhatsApp Cloud API.",
+  "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js"
   },
