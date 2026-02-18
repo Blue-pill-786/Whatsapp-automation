@@ -4,16 +4,20 @@
   "description": "A multi-tenant WhatsApp automation backend for integrating AI chatbots, website services, and lead capture using the WhatsApp Cloud API.",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "axios": "^1.13.4",
-    "dotenv": "^17.2.3",
+    "axios": "^1.13.5",
+    "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "googleapis": "^171.2.0"
+  },
+  "devDependencies": {
+    "jest": "^30.2.0"
   }
 }

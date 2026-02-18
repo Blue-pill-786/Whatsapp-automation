@@ -1,6 +1,7 @@
 import { clients } from "../config/clients.js";
 import { handleMenuFlow } from "../flows/menu.flow.js";
 import { env } from "../config/env.js";
+import { sendMessage } from "../services/whatsapp.service.js";
 
 export async function verifyWebhook(req, res) {
   const mode = req.query["hub.mode"];
@@ -39,7 +40,11 @@ export async function receiveMessage(req, res) {
       clientId,
       from,
       text,
+      sendMessage
     });
+
+    
+
 
     return res.sendStatus(200);
   } catch (err) {

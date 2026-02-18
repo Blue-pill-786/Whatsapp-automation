@@ -1,7 +1,7 @@
 export const clients = {
-  // phone_number_id from Meta
   "988302764362380": {
     name: "Ubair",
+    phoneNumberId: "988302764362380",
     token: process.env.WHATSAPP_TOKEN,
 
     welcomeMessage: `Hi 👋  
@@ -18,6 +18,6 @@ Reply with:
 1️⃣ AI chatbot / automation demo  
 2️⃣ Website design & development  
 3️⃣ Get pricing / consultation  
-4️⃣ Talk to Ubair directly`,
-  },
+4️⃣ Talk to Ubair directly`
+  }
 };
