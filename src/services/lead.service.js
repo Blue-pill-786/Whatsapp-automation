@@ -1,3 +1,5 @@
+import { google } from "googleapis";
+
 export async function saveLead({ clientName, phone, step, message }) {
   const auth = new google.auth.JWT(
     process.env.GSHEET_CLIENT_EMAIL,
