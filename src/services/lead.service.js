@@ -1,16 +1,14 @@
 import { google } from "googleapis";
 
+import { google } from "googleapis";
+
 export async function saveLead({ clientName, phone, step, message }) {
-  console.log("EMAIL:", process.env.GSHEET_CLIENT_EMAIL);
-  console.log("KEY:", process.env.GSHEET_PRIVATE_KEY);
-  console.log("KEY LENGTH:", process.env.GSHEET_PRIVATE_KEY?.length);
-  console.log("SHEET:", process.env.GSHEET_ID);
-  const auth = new google.auth.JWT(
-    process.env.GSHEET_CLIENT_EMAIL,
-    null,
-    process.env.GSHEET_PRIVATE_KEY.replace(/\\n/g, "\n"),
-    ["https://www.googleapis.com/auth/spreadsheets"]
-  );
+
+  const auth = new google.auth.JWT({
+    email: process.env.GSHEET_CLIENT_EMAIL,
+    key: process.env.GSHEET_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"]
+  });
 
   await auth.authorize();
 
