@@ -8,6 +8,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("WhatsApp Automation Server is running 🚀");
 });
+app.use(express.static("public"));
 
 app.use("/", webhookRoutes);
 

@@ -1,0 +1,36 @@
+<h2>Leads</h2>
+<button onclick="loadLeads()">Load Leads</button>
+<table border="1">
+  <thead>
+    <tr>
+      <th>Lead ID</th>
+      <th>Phone</th>
+      <th>Intent</th>
+      <th>Message</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody id="leadsTable"></tbody>
+</table>
+
+<script>
+async function loadLeads() {
+  const res = await fetch("/admin/leads/988302764362380");
+  const data = await res.json();
+
+  const table = document.getElementById("leadsTable");
+  table.innerHTML = "";
+
+  data.forEach(row => {
+    table.innerHTML += `
+      <tr>
+        <td>${row[0]}</td>
+        <td>${row[4]}</td>
+        <td>${row[5]}</td>
+        <td>${row[6]}</td>
+        <td>${row[7]}</td>
+      </tr>
+    `;
+  });
+}
+</script>

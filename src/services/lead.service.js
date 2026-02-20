@@ -13,16 +13,19 @@ export async function saveLead(data) {
     const sheets = google.sheets({ version: "v4", auth });
 
     const values = [[
-      new Date().toISOString(),
-      data.clientName,
-      data.phone,
-      data.step,
-      data.message
-    ]];
+  data.leadId,
+  data.timestamp,
+  data.clientName,
+  data.clientId,
+  data.phone,
+  data.intent,
+  data.userMessage,
+  data.status
+]];
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GSHEET_ID,
-      range: "A:E",
+      range: "A:H",
       valueInputOption: "RAW",
       requestBody: { values }
     });

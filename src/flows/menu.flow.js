@@ -61,13 +61,18 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
             "💰 *Pricing & Consultation*\n\n" +
             "Please share a short description of what you’re looking for.",
         });
+        const leadId = `${clientId}-${from}-${Date.now()}`;
 
         await saveLead({
-          clientName: client.name,
-          phone: from,
-          step: "Pricing",
-          message: "Requested pricing",
-        });
+  leadId,
+  timestamp: new Date().toISOString(),
+  clientName: client.name,
+  clientId,
+  phone: from,
+  intent: "Pricing",
+  userMessage: messageText,
+  status: "New"
+});
 
         notifyAdmin({
           clientName: client.name,
