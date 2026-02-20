@@ -51,7 +51,7 @@ export async function receiveMessage(req, res) {
 
     return res.sendStatus(200);
   } catch (err) {
-    console.error("🔥 Webhook error:", err.message);
-    return res.sendStatus(200);
+    console.error("🔥 Webhook error");
+    return res.sendStatus(500);
   }
 }
