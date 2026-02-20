@@ -13,6 +13,19 @@
   <tbody id="leadsTable"></tbody>
 </table>
 
+
+<h1>Dashboard Test</h1>
+<button onclick="test()">Load Leads</button>
+<pre id="output"></pre>
+
+<script>
+async function test() {
+  const res = await fetch("/admin/leads/988302764362380");
+  const data = await res.json();
+  document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+}
+</script>
+
 <script>
 async function loadLeads() {
   const res = await fetch("/admin/leads/988302764362380");
