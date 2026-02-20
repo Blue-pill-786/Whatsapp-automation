@@ -5,11 +5,9 @@ import { notifyAdmin } from "../services/notify.service.js";
 
 export async function handleMenuFlow({ client, clientId, from, text }) {
   const state = getUserState(clientId, from);
-
-  // Normalize text (safety)
   const messageText = text?.trim();
 
-  // 1️⃣ First interaction → send welcome
+  // 🔹 1️⃣ First Interaction
   if (!state) {
     console.log("👋 New user:", from);
 
@@ -25,7 +23,7 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
     return;
   }
 
-  // 2️⃣ MENU handling
+  // 🔹 2️⃣ MENU Handling
   if (state.step === "MENU") {
     switch (messageText) {
       case "1":
@@ -61,26 +59,13 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
             "💰 *Pricing & Consultation*\n\n" +
             "Please share a short description of what you’re looking for.",
         });
-        const leadId = `${clientId}-${from}-${Date.now()}`;
 
-        await saveLead({
-  leadId,
-  timestamp: new Date().toISOString(),
-  clientName: client.name,
-  clientId,
-  phone: from,
-  intent: "Pricing",
-  userMessage: messageText,
-  status: "New"
-});
-
-        notifyAdmin({
-          clientName: client.name,
-          phone: from,
-          message: "Requested pricing",
+        // Store intent only (do NOT save yet)
+        setUserState(clientId, from, {
+          step: "LEAD",
+          intent: "Pricing",
         });
 
-        setUserState(clientId, from, { step: "LEAD" });
         return;
 
       case "4":
@@ -93,20 +78,11 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
             "Please share your requirement briefly. Ubair will contact you shortly.",
         });
 
-        await saveLead({
-          clientName: client.name,
-          phone: from,
-          step: "Human",
-          message: "Requested human contact",
+        setUserState(clientId, from, {
+          step: "LEAD",
+          intent: "Human",
         });
 
-        notifyAdmin({
-          clientName: client.name,
-          phone: from,
-          message: "Requested human contact",
-        });
-
-        setUserState(clientId, from, { step: "LEAD" });
         return;
 
       default:
@@ -125,15 +101,21 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
     }
   }
 
-  // 3️⃣ LEAD step → capture free text
+  // 🔹 3️⃣ LEAD Step — Save Structured Lead
   if (state.step === "LEAD" && messageText) {
-    console.log("📝 Lead message from", from, ":", messageText);
+    console.log("📝 Capturing structured lead from:", from);
+
+    const leadId = `${clientId}-${from}-${Date.now()}`;
 
     await saveLead({
+      leadId,
+      timestamp: new Date().toISOString(),
       clientName: client.name,
+      clientId,
       phone: from,
-      step: "Message",
-      message: messageText,
+      intent: state.intent || "General",
+      userMessage: messageText,
+      status: "New",
     });
 
     notifyAdmin({
@@ -152,10 +134,11 @@ export async function handleMenuFlow({ client, clientId, from, text }) {
     });
 
     setUserState(clientId, from, { step: "DONE" });
+
     return;
   }
 
-  // 4️⃣ DONE state → polite fallback
+  // 🔹 4️⃣ DONE State
   if (state.step === "DONE") {
     await sendMessage({
       to: from,
