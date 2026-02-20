@@ -7,10 +7,7 @@ export async function verifyWebhook(req, res) {
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
   const challenge = req.query["hub.challenge"];
-  console.log("Mode:", mode);
-console.log("Token from Meta:", token);
-console.log("Expected Token:", env.VERIFY_TOKEN);
-
+ 
   if (mode === "subscribe" && token === env.VERIFY_TOKEN) {
     console.log("✅ Webhook verified");
     return res.status(200).send(challenge);
@@ -22,6 +19,7 @@ console.log("Expected Token:", env.VERIFY_TOKEN);
 export async function receiveMessage(req, res) {
   try {
     console.log("🔥 WEBHOOK HIT");
+
     const entry = req.body.entry?.[0];
     const changes = entry?.changes?.[0];
     const message = changes?.value?.messages?.[0];
@@ -42,16 +40,13 @@ export async function receiveMessage(req, res) {
       client,
       clientId,
       from,
-      text,
-      sendMessage
+      text
     });
 
-    
-
-
     return res.sendStatus(200);
+
   } catch (err) {
-    console.error("🔥 Webhook error");
-    return res.sendStatus(500);
+    console.error("🔥 Webhook error:", err);
+    return res.sendStatus(200); // Never trigger retry storm
   }
 }
